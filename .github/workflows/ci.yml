@@ -1,77 +1,84 @@
-name: Validate & Build
+name: CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
-      - 'diffs/**/*.json'
-      - 'data/schema_diff.json'
+      - 'diffs/**.json'
       - 'scripts/**'
+      - 'data/**'
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'diffs/**/*.json'
-      - 'data/schema_diff.json'
-      - 'scripts/**'
+      - 'data/**'
+      - '.github/workflows/ci.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  validate-merge-build:
+  pr-merge-export:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
         with:
-          python-version: '3.x'
-
-      - name: Install validator deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install jsonschema
-
-      - name: Validate diffs against schema_diff.json
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install jsonschema
+      - name: Validate diffs
         run: |
           python - <<'PY'
-          import json, glob, sys
-          from jsonschema import validate, ValidationError
-
-          with open('data/schema_diff.json','r',encoding='utf-8') as f:
-            schema = json.load(f)
-
-          ok = True
-          for path in sorted(glob.glob('diffs/*.json')):
-            try:
-              with open(path,'r',encoding='utf-8') as f:
-                obj = json.load(f)
-              validate(instance=obj, schema=schema)
-              print('VALID', path)
-            except Exception as e:
-              ok = False
-              print('INVALID', path, '->', e)
-          sys.exit(0 if ok else 1)
+          import json, glob, jsonschema
+          schema = json.load(open('data/schema_diff.json', encoding='utf-8'))
+          for p in glob.glob('diffs/*.json'):
+              jsonschema.validate(json.load(open(p, encoding='utf-8')), schema)
+          print("OK")
           PY
-
-      # Merge & export only when pushing to main
+      - name: Compute changed diffs vs base
+        id: changed
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          FILES="$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^diffs/.*\.json$' || true)"
+          echo "files=$FILES" >> "$GITHUB_OUTPUT"
       - name: Merge diffs into MASTER.json
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          shopt -s nullglob
-          for D in diffs/*.json; do
-            echo "::group::Merging $D"
-            python scripts/merge_diff.py data/MASTER.json "$D" "ci"
-            echo "::endgroup::"
+          set -e
+          for f in ${{ steps.changed.outputs.files }}; do
+            python scripts/merge_diff.py "$f" data/MASTER.json
           done
-
-      - name: Export docs/kyphi_long.json
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Export kyphi_long.json
+        run: python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
+      - name: Commit results back to PR branch
         run: |
-          python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
+          git config user.email "actions@github.com"
+          git config user.name  "github-actions[bot]"
+          git add data/MASTER.json docs/kyphi_long.json
+          git commit -m "CI: merge & export for PR" || echo "No changes to commit"
+          git push
 
-      - name: Commit and push changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: stefanzweifel/git-auto-commit-action@v5
+  main-validate:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          commit_message: "CI: merge diffs and rebuild kyphi_long.json"
-          branch: main
+          python-version: '3.11'
+      - run: pip install jsonschema
+      - name: Validate MASTER.json against schema_master.json
+        run: |
+          python - <<'PY'
+          import json, jsonschema
+          schema=json.load(open('data/schema_master.json',encoding='utf-8'))
+          with open('data/MASTER.json',encoding='utf-8') as f:
+              jsonschema.validate(json.load(f), schema)
+          print("OK")
+          PY
