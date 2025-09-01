@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kyphi Ingredient Aligner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 1.5rem; }
+  header { display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  h1 { font-size: 1.25rem; margin: 0; }
+  .panel { display:flex; gap:2rem; margin: 1rem 0; flex-wrap:wrap; }
+  .block { min-width: 280px; }
+  label { display:block; margin: .25rem 0; cursor: pointer; }
+  input[type="search"] { width: 100%; padding:.5rem; }
+  table { width:100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border-bottom: 1px solid #ddd; padding: .5rem .6rem; vertical-align: top; }
+  th { position: sticky; top: 0; background: #fafafa; text-align:left; font-weight:600; }
+  tbody tr:hover { background: #f8f8ff; }
+  .pill { display:inline-block; padding:.1rem .4rem; border:1px solid #ccc; border-radius:999px; font-size:.75rem; margin-left:.25rem; }
+  .muted { color:#666; font-size:.9rem; }
+  .wrap { white-space: pre-wrap; }
+  .controls { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .btn { padding:.45rem .7rem; border:1px solid #bbb; border-radius:.4rem; background:#fff; cursor:pointer; }
+  .btn:active { transform: translateY(1px); }
+  .small { font-size:.85rem; }
+  .note { color:#555; }
+  .badge { font-size:.75rem; border:1px solid #ddd; border-radius:.4rem; padding:.1rem .35rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Kyphi Ingredient Aligner</h1>
+  <span class="muted">Data loads from <code>kyphi_long.json</code>.</span>
+</header>
+
+<div class="panel">
+  <div class="block">
+    <div class="controls">
+      <button id="selectAll" class="btn small">Select all</button>
+      <button id="selectNone" class="btn small">None</button>
+      <button id="exportCSV" class="btn small">Export CSV</button>
+      <button id="exportJSON" class="btn small">Export JSON</button>
+    </div>
+    <div id="recipeList" class="block" aria-label="Recipe selection"></div>
+  </div>
+
+  <div class="block">
+    <label>
+      Search ingredients / notes
+      <input id="search" type="search" placeholder="e.g., σμύρνης, Sw.t nmtj, juniper, honey…">
+    </label>
+    <label><input type="checkbox" id="showAmounts" checked> Show amounts</label>
+    <label><input type="checkbox" id="showPrep" checked> Show preparation</label>
+    <label><input type="checkbox" id="showNotes" checked> Show notes</label>
+    <div class="muted small">Data: <span id="dataStatus" class="badge">loading…</span></div>
+  </div>
+</div>
+
+<table id="grid" aria-label="Aligned ingredients table">
+  <thead id="thead"></thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script>
+const DATA_URL = 'kyphi_long.json';
+const SAMPLE_DATA = [
+  {"recipe":"Philae","ingredient":"gnn","amount":null,"preparation":null,"notes":"unidentified"},
+  {"recipe":"Dioscorides","ingredient":"σμύρνης","amount":"δραχμὰς 12","preparation":null,"notes":"myrrh"}
+];
+
+const nfkc = s => s && s.normalize ? s.normalize('NFKC') : s;
+function unique(arr){ return Array.from(new Set(arr)); }
+function download(filename, text){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+let rows=[], recipes=[], selected=new Set(), show={amounts:true, prep:true, notes:true}, searchTerm='';
+
+async function loadJSON(url){
+  try{ const r=await fetch(url); if(!r.ok) throw 0; return await r.json(); }
+  catch{ return null; }
+}
+
+function renderRecipeList(){
+  const box=document.getElementById('recipeList'); box.innerHTML='';
+  recipes.forEach(name=>{
+    const id='r_'+name.replace(/\W+/g,'_');
+    const wrap=document.createElement('label');
+    wrap.innerHTML=`<input type="checkbox" id="${id}" ${selected.has(name)?'checked':''}> ${name}`;
+    box.appendChild(wrap);
+    wrap.querySelector('input').addEventListener('change', e=>{
+      e.target.checked?selected.add(name):selected.delete(name);
+      renderTable();
+    });
+  });
+  document.getElementById('selectAll').onclick=()=>{ selected=new Set(recipes); renderRecipeList(); renderTable(); };
+  document.getElementById('selectNone').onclick=()=>{ selected.clear(); renderRecipeList(); renderTable(); };
+}
+
+function renderTable(){
+  const thead=document.getElementById('thead');
+  const tbody=document.getElementById('tbody');
+  const active=recipes.filter(r=>selected.has(r));
+  const ingredients=unique(rows.map(r=>r.ingredient)).sort((a,b)=>a.localeCompare(b));
+  thead.innerHTML=`<tr><th>Ingredient</th>${active.map(r=>`<th>${r}</th>`).join('')}</tr>`;
+  tbody.innerHTML='';
+  const q=nfkc(searchTerm||'').toLowerCase();
+  ingredients.forEach(ing=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div class="wrap">${ing}</div></td>`;
+    active.forEach(rec=>{
+      const matches=rows.filter(r=>r.ingredient===ing && r.recipe===rec);
+      if(!matches.length){ tr.innerHTML+=`<td>—</td>`; return; }
+      const cell=matches.map(m=>{
+        const bits=[`<strong>${m.ingredient}</strong>`];
+        if(show.amounts && m.amount) bits.push(`<span class="pill">${m.amount}</span>`);
+        if(show.prep && m.preparation) bits.push(`<span class="pill">${m.preparation}</span>`);
+        if(show.notes && m.notes) bits.push(`<span class="note">${m.notes}</span>`);
+        return bits.join(' ');
+      }).join('<br>');
+      tr.innerHTML+=`<td>${cell}</td>`;
+    });
+    // search filter
+    const textBlob=(ing+' '+tr.textContent).toLowerCase();
+    if(q && !textBlob.includes(q)) return;
+    tbody.appendChild(tr);
+  });
+}
+
+addEventListener('DOMContentLoaded', async ()=>{
+  const data = await loadJSON(DATA_URL) || SAMPLE_DATA;
+  rows = data.map(r=>({
+    recipe:nfkc(r.recipe),
+    ingredient:nfkc(r.ingredient),
+    amount:r.amount??null,
+    preparation:r.preparation??null,
+    notes:r.notes??null
+  }));
+  recipes = unique(rows.map(r=>r.recipe)).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true}));
+  selected = new Set(recipes);
+  document.getElementById('dataStatus').textContent = (data===SAMPLE_DATA?'sample data':'kyphi_long.json loaded');
+  renderRecipeList();
+  renderTable();
+  document.getElementById('search').addEventListener('input', e=>{ searchTerm=e.target.value; renderTable(); });
+  document.getElementById('showAmounts').addEventListener('change', e=>{ show.amounts=e.target.checked; renderTable(); });
+  document.getElementById('showPrep').addEventListener('change', e=>{ show.prep=e.target.checked; renderTable(); });
+  document.getElementById('showNotes').addEventListener('change', e=>{ show.notes=e.target.checked; renderTable(); });
+  document.getElementById('exportCSV').addEventListener('click', ()=>{ download('kyphi_aligned.csv', JSON.stringify(rows, null, 2)); });
+  document.getElementById('exportJSON').addEventListener('click', ()=>{ download('kyphi_long.json', JSON.stringify(rows, null, 2)); });
+});
+</script>
+</body>
+</html>
