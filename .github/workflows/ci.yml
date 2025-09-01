@@ -27,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+<<<<<<< HEAD
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
@@ -34,8 +35,39 @@ jobs:
           python-version: '3.11'
       - run: pip install jsonschema
       - name: Validate diffs
+=======
+          python-version: '3.x'
+
+      - name: Install validator deps
         run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema
+
+      - name: Find diff files
+        id: find_diffs
+>>>>>>> seed/rufus
+        run: |
+          echo "🔍 Looking for diff files..."
+          DIFF_FILES=$(find diffs -name "*.json" -not -path "diffs/processed/*" | sort)
+          if [ -z "$DIFF_FILES" ]; then
+            echo "No diff files found - nothing to validate"
+            echo "diff_files=" >> $GITHUB_OUTPUT
+          else
+            echo "Found diff files:"
+            echo "$DIFF_FILES" | while read file; do
+              echo "  📄 $file"
+            done
+            # Convert newlines to space for output
+            DIFF_FILES_SPACE=$(echo "$DIFF_FILES" | tr '\n' ' ')
+            echo "diff_files=$DIFF_FILES_SPACE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate diffs against schema
+        if: steps.find_diffs.outputs.diff_files != ''
+        run: |
+          echo "🔄 Validating diff files against schema..."
           python - <<'PY'
+<<<<<<< HEAD
           import json, glob, jsonschema
           schema = json.load(open('data/schema_diff.json', encoding='utf-8'))
           for p in glob.glob('diffs/*.json'):
@@ -53,11 +85,108 @@ jobs:
           set -e
           for f in ${{ steps.changed.outputs.files }}; do
             python scripts/merge_diff.py "$f" data/MASTER.json
+=======
+          import json, glob, sys
+          from jsonschema import validate, ValidationError
+
+          with open('data/schema_diff.json','r',encoding='utf-8') as f:
+            schema = json.load(f)
+
+          ok = True
+          validated = 0
+          
+          for path in sorted(glob.glob('diffs/**/*.json', recursive=True)):
+            if '/processed/' in path:
+              continue
+              
+            try:
+              with open(path,'r',encoding='utf-8') as f:
+                obj = json.load(f)
+              validate(instance=obj, schema=schema)
+              validated += 1
+              print(f'✅ VALID: {path}')
+              
+              # Show content summary
+              recipes = len(obj.get('recipes', []))
+              ingredients = len(obj.get('ingredients', []))
+              aliases = len(obj.get('aliases', []))
+              entries = len(obj.get('entries', []))
+              print(f'   📊 {recipes} recipes, {ingredients} ingredients, {aliases} aliases, {entries} entries')
+              
+            except ValidationError as e:
+              ok = False
+              print(f'❌ SCHEMA ERROR in {path}:')
+              print(f'   {e.message}')
+              print(f'   Path: {" -> ".join(str(x) for x in e.absolute_path)}')
+            except Exception as e:
+              ok = False
+              print(f'❌ ERROR in {path}: {e}')
+          
+          print(f'\n📋 Validation Summary: {validated} files validated')
+          sys.exit(0 if ok else 1)
+          PY
+
+      - name: Dry-run merge preview
+        if: steps.find_diffs.outputs.diff_files != ''
+        run: |
+          echo "🧪 Performing dry-run merge to preview changes..."
+          
+          # Create a backup of MASTER.json
+          cp data/MASTER.json data/MASTER.json.backup
+          
+          # Count before merge
+          BEFORE_RECIPES=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['recipes']))")
+          BEFORE_INGREDIENTS=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['ingredients']))")
+          BEFORE_ENTRIES=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['entries']))")
+          
+          echo "📊 Before merge: $BEFORE_RECIPES recipes, $BEFORE_INGREDIENTS ingredients, $BEFORE_ENTRIES entries"
+          
+          # Perform dry-run merge
+          for DIFF_FILE in ${{ steps.find_diffs.outputs.diff_files }}; do
+            if [ -f "$DIFF_FILE" ]; then
+              echo "::group::📦 Merging $DIFF_FILE"
+              python scripts/merge_diff.py data/MASTER.json "$DIFF_FILE" "ci_preview"
+              echo "::endgroup::"
+            fi
+          done
+          
+          # Count after merge
+          AFTER_RECIPES=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['recipes']))")
+          AFTER_INGREDIENTS=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['ingredients']))")
+          AFTER_ENTRIES=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['entries']))")
+          
+          echo "📊 After merge: $AFTER_RECIPES recipes, $AFTER_INGREDIENTS ingredients, $AFTER_ENTRIES entries"
+          echo "📈 Changes: +$((AFTER_RECIPES - BEFORE_RECIPES)) recipes, +$((AFTER_INGREDIENTS - BEFORE_INGREDIENTS)) ingredients, +$((AFTER_ENTRIES - BEFORE_ENTRIES)) entries"
+          
+          # Restore backup (this was just a preview)
+          mv data/MASTER.json.backup data/MASTER.json
+
+      # Only do actual merge and build on main branch
+      - name: Merge diffs into MASTER.json
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.find_diffs.outputs.diff_files != ''
+        run: |
+          echo "🔄 Performing actual merge to main branch..."
+          
+          for DIFF_FILE in ${{ steps.find_diffs.outputs.diff_files }}; do
+            if [ -f "$DIFF_FILE" ]; then
+              echo "::group::📦 Merging $DIFF_FILE"
+              python scripts/merge_diff.py data/MASTER.json "$DIFF_FILE" "ci"
+              
+              # Move processed file to archive
+              mkdir -p diffs/processed
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BASENAME=$(basename "$DIFF_FILE" .json)
+              mv "$DIFF_FILE" "diffs/processed/${BASENAME}_${TIMESTAMP}.json"
+              echo "📁 Archived to diffs/processed/${BASENAME}_${TIMESTAMP}.json"
+              echo "::endgroup::"
+            fi
+>>>>>>> seed/rufus
           done
       - name: Export kyphi_long.json
         run: python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
       - name: Commit results back to PR branch
         run: |
+<<<<<<< HEAD
           git config user.email "actions@github.com"
           git config user.name  "github-actions[bot]"
           git add data/MASTER.json docs/kyphi_long.json
@@ -82,3 +211,27 @@ jobs:
               jsonschema.validate(json.load(f), schema)
           print("OK")
           PY
+=======
+          echo "🏗️  Rebuilding web app data..."
+          python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
+
+      - name: Commit and push changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.find_diffs.outputs.diff_files != ''
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 CI: merge diffs and rebuild kyphi_long.json"
+          branch: main
+
+      - name: Success summary
+        if: success()
+        run: |
+          echo "🎉 Build completed successfully!"
+          
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "📋 This was a validation-only run for PR"
+            echo "✅ All diffs are valid and ready to merge"
+          else
+            echo "🚀 Changes have been merged and deployed"
+            echo "🌐 Web app will update at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          fi
+>>>>>>> seed/rufus

@@ -1,0 +1,201 @@
+{
+  "recipes": [
+    {
+      "slug": "kyphi_rufus_damocrates_14-117-10",
+      "label": "\u03ba\u03cd\u03c6\u03b9",
+      "source": "Rufus apud Damocrates, 14.117.10\u201314.119.5"
+    }
+  ],
+  "ingredients": [
+    {
+      "slug": "stafida",
+      "label": "\u03c3\u03c4\u03b1\u03c6\u03af\u03b4\u03b1"
+    },
+    {
+      "slug": "sarka_autes",
+      "label": "\u03c3\u03ac\u03c1\u03ba\u03b1 \u03b1\u1f50\u03c4\u1fc6\u03c2"
+    },
+    {
+      "slug": "terminthines",
+      "label": "\u03a4\u03b5\u03c1\u03bc\u03b9\u03bd\u03b8\u03af\u03bd\u03b7"
+    },
+    {
+      "slug": "smyrne",
+      "label": "\u03a3\u03bc\u03cd\u03c1\u03bd\u03b7"
+    },
+    {
+      "slug": "kinnamomon",
+      "label": "\u03ba\u03b9\u03bd\u03bd\u03b1\u03bc\u03ce\u03bc\u03bf\u03bd"
+    },
+    {
+      "slug": "kardamomou_spermatos",
+      "label": "\u03ba\u03b1\u03c1\u03b4\u03b1\u03bc\u03ce\u03bc\u03bf\u03c5 \u03c3\u03c0\u03ad\u03c1\u03bc\u03b1\u03c4\u03bf\u03c2"
+    },
+    {
+      "slug": "schoinos",
+      "label": "\u03c3\u03c7\u03bf\u1fd6\u03bd\u03bf\u03c2"
+    },
+    {
+      "slug": "krokos",
+      "label": "\u03ba\u03c1\u03cc\u03ba\u03bf\u03c2"
+    },
+    {
+      "slug": "bdellion_onychas",
+      "label": "\u03b2\u03b4\u03ad\u03bb\u03bb\u03b9\u03bf\u03bd (\u1f4c\u03bd\u03c5\u03c7\u03b1\u03c2)"
+    },
+    {
+      "slug": "aspalathou",
+      "label": "\u1f00\u03c3\u03c0\u03b1\u03bb\u03ac\u03b8\u03bf\u03c5"
+    },
+    {
+      "slug": "nardostachyos",
+      "label": "\u039d\u03b1\u03c1\u03b4\u03bf\u03c3\u03c4\u03ac\u03c7\u03c5\u03bf\u03c2"
+    },
+    {
+      "slug": "kasias",
+      "label": "\u03ba\u03b1\u03c3\u03af\u03b1\u03c2"
+    },
+    {
+      "slug": "kupeirou",
+      "label": "\u03ba\u03c5\u03c0\u03b5\u03af\u03c1\u03bf\u03c5"
+    },
+    {
+      "slug": "arkeythidon",
+      "label": "\u1f00\u03c1\u03ba\u03b5\u03c5\u03b8\u03af\u03b4\u03c9\u03bd"
+    },
+    {
+      "slug": "kalamos_myrepsikou",
+      "label": "\u03ba\u03b1\u03bb\u03ac\u03bc\u03bf\u03c5 \u03c4\u03bf\u1fe6 \u03bc\u03c5\u03c1\u03b5\u03c8\u03b9\u03ba\u03bf\u1fe6"
+    },
+    {
+      "slug": "melitos",
+      "label": "\u03bc\u03ad\u03bb\u03b9\u03c4\u03bf\u03c2"
+    },
+    {
+      "slug": "oinos",
+      "label": "\u03bf\u1f36\u03bd\u03bf\u03c2"
+    }
+  ],
+  "aliases": [],
+  "entries": [
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "stafida",
+      "amount_raw": "",
+      "preparation": "\u03c3\u03c5\u03bd\u03c4\u03c1\u03af\u03b2\u03b5\u03b9\u03bd (they crush the raisins).",
+      "notes": "'\u03bb\u03b5\u03c5\u03ba\u1f74\u03bd \u03bb\u03b1\u03b2\u03cc\u03bd\u03c4\u03b5\u03c2 \u03c3\u03c4\u03b1\u03c6\u03af\u03b4\u03b1 \u03c4\u1f74\u03bd \u03bb\u03b9\u03c0\u03b1\u03c1\u03c9\u03c4\u03ac\u03c4\u03b7\u03bd' (white, very oily raisin). No explicit weight given in text."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "sarka_autes",
+      "amount_raw": "24 drachmas (Attic)",
+      "preparation": "\u03bb\u03b5\u03bf\u03c4\u03c1\u03b9\u03b2\u03ae\u03c3\u03b1\u03bd\u03c4\u03b5\u03c2 \u03ba\u03b1\u03bb\u1ff6\u03c2 \u2014 pounded finely.",
+      "notes": "'\u03c3\u03ac\u03c1\u03ba\u03b1 \u03b1\u1f50\u03c4\u1fc6\u03c2' = \"its flesh\" (antecedent unclear \u2014 likely the raisin or fruit); amount given as '\u03b4\u03c1\u03b1\u03c7\u03bc\u1f70\u03c2 \u1f08\u03c4\u03c4\u03b9\u03ba\u1f70\u03c2 \u03b4\u1f76\u03c2 \u03b4\u03ce\u03b4\u03b5\u03ba\u03b1' = 24."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "terminthines",
+      "amount_raw": "possibly same as previous (\u224824 drachmas)",
+      "preparation": "",
+      "notes": "Text reads '\u03a4\u03b5\u03c1\u03bc\u03b9\u03bd\u03b8\u03af\u03bd\u03b7\u03c2 \u03c4\u03b5 \u03c4\u03b1\u1f50\u03c4\u1f78 \u03c4\u1fc6\u03c2 \u03ba\u03b5\u03ba\u03b1\u03c5\u03bc\u03ad\u03bd\u03b7\u03c2' \u2014 amount not explicit, appears to be 'the same' as previous; identification uncertain (terebinth/terebinth-resin?)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "smyrne",
+      "amount_raw": "12 drachmas",
+      "preparation": "",
+      "notes": "'\u03a3\u03bc\u03cd\u03c1\u03bd\u03b7\u03c2 \u03c4\u03b5 \u03b9\u03b2\u02b9' = 12 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kinnamomon",
+      "amount_raw": "4 drachmas",
+      "preparation": "",
+      "notes": "'\u03ba\u03b9\u03bd\u03bd\u03b1\u03bc\u03ce\u03bc\u03bf\u03c5 \u03b4\u02b9' = 4 drachmas. Text also records a variant substitution (see notes for kardamomou_spermatos)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kardamomou_spermatos",
+      "amount_raw": "~4 drachmas (variant, same as cinnamon)",
+      "preparation": "",
+      "notes": "Variant reading: some mix cardamom seed instead of cinnamon in the same quantity ('\u1f1c\u03bd\u03b9\u03bf\u03b9 \u03b4\u1f72 \u03ba\u03b9\u03bd\u03bd\u03ac\u03bc\u03c9\u03bc\u03bf\u03bd \u03bf\u1f50 \u03c3\u03c7\u03cc\u03bd\u03c4\u03b5\u03c2 \u03b2\u03b1\u03bb\u03b5\u1fd6\u03bd \u039c\u03af\u03c3\u03b3\u03bf\u03c5\u03c3\u03b9 \u03c4\u03b1\u1f50\u03c4\u1f78 \u03ba\u03b1\u03c1\u03b4\u03b1\u03bc\u03ce\u03bc\u03bf\u03c5 \u03c3\u03c0\u03ad\u03c1\u03bc\u03b1\u03c4\u03bf\u03c2')."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "schoinos",
+      "amount_raw": "12 drachmas",
+      "preparation": "",
+      "notes": "'\u03a3\u03c7\u03bf\u03af\u03bd\u03bf\u03c5 \u03b9\u03b2\u02b9' = 12 drachmas. Identification of \u03c3\u03c7\u03bf\u1fd6\u03bd\u03bf\u03c2 uncertain (literary term; often 'reed' or a commodity name)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "krokos",
+      "amount_raw": "1 (unit)",
+      "preparation": "",
+      "notes": "'\u03ba\u03c1\u03cc\u03ba\u03bf\u03c5 \u03bc\u03af\u03b1' = one unit (\u03bc\u03af\u03b1). Unit not explicitly specified beyond '\u03bc\u03af\u03b1'."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "bdellion_onychas",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'\u03b2\u03b4\u03b5\u03bb\u03bb\u03af\u03bf\u03c5 \u1f4c\u03bd\u03c5\u03c7\u03b1\u03c2 \u03b4\u03c1\u03b1\u03c7. \u03b3\u02b9' = 3 drachmas. Reading uncertain\u2014appears to combine \u03b2\u03b4\u03ad\u03bb\u03bb\u03b9\u03bf\u03bd and \u1f44\u03bd\u03c5\u03c7\u03b1 (onycha); identification uncertain."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "aspalathou",
+      "amount_raw": "2 drachmas",
+      "preparation": "",
+      "notes": "'\u1f00\u03c3\u03c0\u03b1\u03bb\u03ac\u03b8\u03bf\u03c5 \u03b2\u02b9' = 2 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "nardostachyos",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'\u039d\u03b1\u03c1\u03b4\u03bf\u03c3\u03c4\u03ac\u03c7\u03c5\u03bf\u03c2 \u03b3\u02b9' = 3 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kasias",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'\u03ba\u03b1\u03c3\u03af\u03b1\u03c2 \u03b3\u02b9' = 3 drachmas. Text adds '\u03c4\u1fc6\u03c2 \u03ba\u03b1\u03bb\u1fc6\u03c2 \u039a\u03b1\u03b8\u03b1\u03c1\u1fb6\u03c2'\u2014possible qualifier of quality."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kupeirou",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'\u03ba\u03c5\u03c0\u03b5\u03af\u03c1\u03bf\u03c5 \u03b3\u02b9 \u03b4\u03c1\u03b1\u03c7\u03bc\u1f70\u03c2' = 3 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "arkeythidon",
+      "amount_raw": "9 drachmas",
+      "preparation": "",
+      "notes": "'\u1f00\u03c1\u03ba\u03b5\u03c5\u03b8\u03af\u03b4\u03c9\u03bd \u2026 \u0398\u02b9' \u2014 Theta (\u0398\u02b9) = 9 drachmas; text: choose the largest/fattest berries ('\u1f18\u03ba \u03c4\u1ff6\u03bd \u03bc\u03b5\u03b3\u03af\u03c3\u03c4\u03c9\u03bd \u03ba\u03b1\u1f76 \u03bb\u03b9\u03c0\u03b1\u03c1\u1ff6\u03bd \u03c4\u03b1\u03cd\u03c4\u03b1\u03b9\u03c2 \u1f34\u03c3\u03b1\u03c2'). Identification = juniper (\u1f00\u03c1\u03ba\u03b5\u03c5\u03b8\u03af\u03b4\u03b5\u03c2)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kalamos_myrepsikou",
+      "amount_raw": "9 drachmas",
+      "preparation": "",
+      "notes": "'\u0398\u02b9. \u03b4\u1f72 \u03ba\u03b1\u03bb\u03ac\u03bc\u03bf\u03c5 \u03c4\u03bf\u1fe6 \u03bc\u03c5\u03c1\u03b5\u03c8\u03b9\u03ba\u03bf\u1fe6 \u03b4\u03c1\u03b1\u03c7\u03bc\u1f70\u03c2' \u2014 appears to give same numeral (\u0398\u02b9 = 9) to aromatic calamus; textual punctuation ambiguous."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "melitos",
+      "amount_raw": "moderate amount ('\u03c4\u1f78 \u03bc\u03ad\u03c4\u03c1\u03b9\u03bf\u03bd')",
+      "preparation": "added to mixture (text: '\u03c0\u03c1\u03bf\u03c3\u03b1\u03c0\u03bf\u03b4\u03cc\u03bd\u03c4\u03b5\u03c2 \u03bc\u03ad\u03bb\u03b9').",
+      "notes": "'\u039c\u03ad\u03bb\u03b9\u03c4\u03bf\u03c2 \u03c4\u1f78 \u03bc\u03ad\u03c4\u03c1\u03b9\u03bf\u03bd' = medium/moderate quantity; used in mixing to reach honey-like thickness."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "oinos",
+      "amount_raw": "small amount ('\u03b2\u03c1\u03b1\u03c7\u03cd')",
+      "preparation": "used in grinding with bdellium and myrrh (text: ground with wine and myrrh until honey-like).",
+      "notes": "'\u03c0\u03b1\u03bd\u03c4\u03b5\u03bb\u1ff6\u03c2 \u03bf\u1f34\u03bd\u03bf\u03c5 \u03b2\u03c1\u03b1\u03c7\u1f7a' = a short/small quantity of wine; appears in mixture with bdellium and myrrh."
+    }
+  ]
+}

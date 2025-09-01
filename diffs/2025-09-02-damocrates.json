@@ -1,0 +1,204 @@
+{
+  "recipes": [
+    {
+      "slug": "kyphi_rufus_damocrates_14-117-10",
+      "label": "κύφι",
+      "source": "Rufus apud Damocrates, 14.117.10–14.119.5"
+    }
+  ],
+  "ingredients": [
+    {
+      "slug": "stafida",
+      "label": "σταφίδα"
+    },
+    {
+      "slug": "sarka_autes",
+      "label": "σάρκα αὐτῆς"
+    },
+    {
+      "slug": "terminthines",
+      "label": "Τερμινθίνη"
+    },
+    {
+      "slug": "kinnamomon",
+      "label": "κινναμώμον"
+    },
+    {
+      "slug": "kardamomou_spermatos",
+      "label": "καρδαμώμου σπέρματος"
+    },
+    {
+      "slug": "schoinos",
+      "label": "σχοῖνος"
+    },
+    {
+      "slug": "krokos",
+      "label": "κρόκος"
+    },
+    {
+      "slug": "bdellion_onychas",
+      "label": "βδέλλιον (Ὄνυχας)"
+    },
+    {
+      "slug": "aspalathou",
+      "label": "ἀσπαλάθου"
+    },
+    {
+      "slug": "nardostachyos",
+      "label": "Ναρδοστάχυος"
+    },
+    {
+      "slug": "kasias",
+      "label": "κασίας"
+    },
+    {
+      "slug": "kupeirou",
+      "label": "κυπείρου"
+    },
+    {
+      "slug": "arkeythidon",
+      "label": "ἀρκευθίδων"
+    },
+    {
+      "slug": "kalamos_myrepsikou",
+      "label": "καλάμου τοῦ μυρεψικοῦ"
+    },
+    {
+      "slug": "melitos",
+      "label": "μέλιτος"
+    },
+    {
+      "slug": "oinos",
+      "label": "οἶνος"
+    }
+  ],
+  "aliases": [
+    {
+      "ingredient_slug": "myrrh",
+      "variant_label": "Σμύρνη",
+      "language": null,
+      "source": "linked by tool"
+    }
+  ],
+  "entries": [
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "stafida",
+      "amount_raw": "",
+      "preparation": "συντρίβειν (they crush the raisins).",
+      "notes": "'λευκὴν λαβόντες σταφίδα τὴν λιπαρωτάτην' (white, very oily raisin). No explicit weight given in text."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "sarka_autes",
+      "amount_raw": "24 drachmas (Attic)",
+      "preparation": "λεοτριβήσαντες καλῶς — pounded finely.",
+      "notes": "'σάρκα αὐτῆς' = \"its flesh\" (antecedent unclear — likely the raisin or fruit); amount given as 'δραχμὰς Ἀττικὰς δὶς δώδεκα' = 24."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "terminthines",
+      "amount_raw": "possibly same as previous (≈24 drachmas)",
+      "preparation": "",
+      "notes": "Text reads 'Τερμινθίνης τε ταὐτὸ τῆς κεκαυμένης' — amount not explicit, appears to be 'the same' as previous; identification uncertain (terebinth/terebinth-resin?)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "myrrh",
+      "amount_raw": "12 drachmas",
+      "preparation": "",
+      "notes": "'Σμύρνης τε ιβʹ' = 12 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kinnamomon",
+      "amount_raw": "4 drachmas",
+      "preparation": "",
+      "notes": "'κινναμώμου δʹ' = 4 drachmas. Text also records a variant substitution (see notes for kardamomou_spermatos)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kardamomou_spermatos",
+      "amount_raw": "~4 drachmas (variant, same as cinnamon)",
+      "preparation": "",
+      "notes": "Variant reading: some mix cardamom seed instead of cinnamon in the same quantity ('Ἔνιοι δὲ κιννάμωμον οὐ σχόντες βαλεῖν Μίσγουσι ταὐτὸ καρδαμώμου σπέρματος')."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "schoinos",
+      "amount_raw": "12 drachmas",
+      "preparation": "",
+      "notes": "'Σχοίνου ιβʹ' = 12 drachmas. Identification of σχοῖνος uncertain (literary term; often 'reed' or a commodity name)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "krokos",
+      "amount_raw": "1 (unit)",
+      "preparation": "",
+      "notes": "'κρόκου μία' = one unit (μία). Unit not explicitly specified beyond 'μία'."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "bdellion_onychas",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'βδελλίου Ὄνυχας δραχ. γʹ' = 3 drachmas. Reading uncertain—appears to combine βδέλλιον and ὄνυχα (onycha); identification uncertain."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "aspalathou",
+      "amount_raw": "2 drachmas",
+      "preparation": "",
+      "notes": "'ἀσπαλάθου βʹ' = 2 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "nardostachyos",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'Ναρδοστάχυος γʹ' = 3 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kasias",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'κασίας γʹ' = 3 drachmas. Text adds 'τῆς καλῆς Καθαρᾶς'—possible qualifier of quality."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kupeirou",
+      "amount_raw": "3 drachmas",
+      "preparation": "",
+      "notes": "'κυπείρου γʹ δραχμὰς' = 3 drachmas."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "arkeythidon",
+      "amount_raw": "9 drachmas",
+      "preparation": "",
+      "notes": "'ἀρκευθίδων … Θʹ' — Theta (Θʹ) = 9 drachmas; text: choose the largest/fattest berries ('Ἐκ τῶν μεγίστων καὶ λιπαρῶν ταύταις ἴσας'). Identification = juniper (ἀρκευθίδες)."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "kalamos_myrepsikou",
+      "amount_raw": "9 drachmas",
+      "preparation": "",
+      "notes": "'Θʹ. δὲ καλάμου τοῦ μυρεψικοῦ δραχμὰς' — appears to give same numeral (Θʹ = 9) to aromatic calamus; textual punctuation ambiguous."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "melitos",
+      "amount_raw": "moderate amount ('τὸ μέτριον')",
+      "preparation": "added to mixture (text: 'προσαποδόντες μέλι').",
+      "notes": "'Μέλιτος τὸ μέτριον' = medium/moderate quantity; used in mixing to reach honey-like thickness."
+    },
+    {
+      "recipe_slug": "kyphi_rufus_damocrates_14-117-10",
+      "ingredient_slug": "oinos",
+      "amount_raw": "small amount ('βραχύ')",
+      "preparation": "used in grinding with bdellium and myrrh (text: ground with wine and myrrh until honey-like).",
+      "notes": "'παντελῶς οἴνου βραχὺ' = a short/small quantity of wine; appears in mixture with bdellium and myrrh."
+    }
+  ]
+}
