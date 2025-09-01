@@ -11,7 +11,7 @@
   .panel { display:flex; gap:2rem; margin: 1rem 0; flex-wrap:wrap; }
   .block { min-width: 280px; }
   label { display:block; margin: .25rem 0; cursor: pointer; }
-  input[type="search"] { width: 100%; padding:.5rem; }
+  input[type="search"] { width: 100%; padding:.5rem; border: 2px solid #ddd; border-radius: .4rem; transition: border-color 0.2s; }
   table { width:100%; border-collapse: collapse; margin-top: 1rem; }
   th, td { border-bottom: 1px solid #ddd; padding: .5rem .6rem; vertical-align: top; }
   th { position: sticky; top: 0; background: #fafafa; text-align:left; font-weight:600; }
@@ -20,11 +20,19 @@
   .muted { color:#666; font-size:.9rem; }
   .wrap { white-space: pre-wrap; }
   .controls { display:flex; gap:.5rem; flex-wrap:wrap; }
-  .btn { padding:.45rem .7rem; border:1px solid #bbb; border-radius:.4rem; background:#fff; cursor:pointer; }
+  .btn { padding:.45rem .7rem; border:1px solid #bbb; border-radius:.4rem; background:#fff; cursor:pointer; transition: transform 0.1s; }
   .btn:active { transform: translateY(1px); }
+  .btn:hover { background: #f5f5f5; }
   .small { font-size:.85rem; }
   .note { color:#555; }
-  .badge { font-size:.75rem; border:1px solid #ddd; border-radius:.4rem; padding:.1rem .35rem; }
+  .badge { font-size:.75rem; border:1px solid #ddd; border-radius:.4rem; padding:.1rem .35rem; background: #f8f8f8; }
+  .badge.error { border-color: #ff6b6b; background: #ffe0e0; color: #d63031; }
+  .center { text-align: center; }
+  .message { padding: .5rem 1rem; margin: .5rem 0; border-radius: .4rem; font-size: .9rem; }
+  .message.info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+  .message.success { background: #e8f5e8; border-left: 4px solid #51cf66; }
+  .message.warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+  .message.error { background: #f8d7da; border-left: 4px solid #dc3545; }
 </style>
 </head>
 <body>
@@ -70,6 +78,7 @@ const SAMPLE_DATA = [
 
 const nfkc = s => s && s.normalize ? s.normalize('NFKC') : s;
 function unique(arr){ return Array.from(new Set(arr)); }
+
 function download(filename, text){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));
@@ -78,11 +87,44 @@ function download(filename, text){
   URL.revokeObjectURL(a.href);
 }
 
-let rows=[], recipes=[], selected=new Set(), show={amounts:true, prep:true, notes:true}, searchTerm='';
+function updateStatus(msg, isError = false) {
+  const badge = document.getElementById('dataStatus');
+  badge.textContent = msg;
+  badge.className = `badge ${isError ? 'error' : ''}`;
+}
+
+function showMessage(msg, type = 'info') {
+  const existing = document.getElementById('message');
+  if (existing) existing.remove();
+  
+  const div = document.createElement('div');
+  div.id = 'message';
+  div.className = `message ${type}`;
+  div.textContent = msg;
+  document.querySelector('header').after(div);
+  
+  setTimeout(() => div.remove(), 3000);
+}
+
+let rows=[], recipes=[], selected=new Set(), show={amounts:true, prep:true, notes:true}, searchTerm='', filteredCount = 0;
 
 async function loadJSON(url){
-  try{ const r=await fetch(url); if(!r.ok) throw 0; return await r.json(); }
-  catch{ return null; }
+  updateStatus('Loading...', false);
+  try { 
+    const r = await fetch(url); 
+    if (!r.ok) {
+      console.warn(`Failed to fetch ${url}: ${r.status} ${r.statusText}`);
+      return null;
+    }
+    const data = await r.json(); 
+    if (!Array.isArray(data)) {
+      throw new Error('Data is not an array');
+    }
+    return data;
+  } catch (error) {
+    console.warn(`Error loading ${url}:`, error.message);
+    return null;
+  }
 }
 
 function renderRecipeList(){
@@ -106,9 +148,19 @@ function renderTable(){
   const tbody=document.getElementById('tbody');
   const active=recipes.filter(r=>selected.has(r));
   const ingredients=unique(rows.map(r=>r.ingredient)).sort((a,b)=>a.localeCompare(b));
+  
+  if (active.length === 0) {
+    thead.innerHTML = '<tr><th>Ingredient</th><th class="muted">No recipes selected</th></tr>';
+    tbody.innerHTML = '<tr><td colspan="2" class="muted center">Select recipes from the left panel</td></tr>';
+    filteredCount = 0;
+    return;
+  }
+  
   thead.innerHTML=`<tr><th>Ingredient</th>${active.map(r=>`<th>${r}</th>`).join('')}</tr>`;
   tbody.innerHTML='';
   const q=nfkc(searchTerm||'').toLowerCase();
+  filteredCount = 0;
+  
   ingredients.forEach(ing=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`<td><div class="wrap">${ing}</div></td>`;
@@ -128,29 +180,127 @@ function renderTable(){
     const textBlob=(ing+' '+tr.textContent).toLowerCase();
     if(q && !textBlob.includes(q)) return;
     tbody.appendChild(tr);
+    filteredCount++;
   });
+  
+  // Show search results feedback
+  const searchInput = document.getElementById('search');
+  if (q) {
+    const totalIngredients = ingredients.length;
+    if (filteredCount === 0) {
+      searchInput.style.borderColor = '#ff6b6b';
+      showMessage(`No ingredients found matching "${searchTerm}"`, 'warning');
+    } else {
+      searchInput.style.borderColor = '#51cf66';
+      if (filteredCount < totalIngredients) {
+        showMessage(`Found ${filteredCount} of ${totalIngredients} ingredients`, 'success');
+      }
+    }
+  } else {
+    searchInput.style.borderColor = '#ddd';
+  }
 }
 
 addEventListener('DOMContentLoaded', async ()=>{
-  const data = await loadJSON(DATA_URL) || SAMPLE_DATA;
-  rows = data.map(r=>({
-    recipe:nfkc(r.recipe),
-    ingredient:nfkc(r.ingredient),
-    amount:r.amount??null,
-    preparation:r.preparation??null,
-    notes:r.notes??null
+  let data = await loadJSON(DATA_URL);
+  let statusMsg = '';
+  
+  if (!data) {
+    console.info('Using sample data (kyphi_long.json not found or invalid)');
+    data = SAMPLE_DATA;
+    statusMsg = 'sample data (file not found)';
+    updateStatus(statusMsg, true);
+    showMessage('Could not load kyphi_long.json - using sample data', 'warning');
+  } else {
+    statusMsg = `${data.length} entries loaded`;
+    updateStatus(statusMsg, false);
+    if (data.length === 0) {
+      showMessage('Data file is empty - add some diffs and rebuild!', 'info');
+    }
+  }
+  
+  // Validate and clean data
+  const validRows = [];
+  data.forEach((row, i) => {
+    if (!row.recipe || !row.ingredient) {
+      console.warn(`Skipping invalid row ${i}:`, row);
+      return;
+    }
+    validRows.push(row);
+  });
+  
+  if (validRows.length < data.length) {
+    showMessage(`Filtered out ${data.length - validRows.length} invalid rows`, 'warning');
+  }
+  
+  rows = validRows.map(r=>({
+    recipe: nfkc(r.recipe),
+    ingredient: nfkc(r.ingredient),
+    amount: r.amount ?? null,
+    preparation: r.preparation ?? null,
+    notes: r.notes ?? null
   }));
+  
   recipes = unique(rows.map(r=>r.recipe)).sort((a,b)=>a.localeCompare(b, undefined, {numeric:true}));
   selected = new Set(recipes);
-  document.getElementById('dataStatus').textContent = (data===SAMPLE_DATA?'sample data':'kyphi_long.json loaded');
+  
+  document.getElementById('dataStatus').title = `${rows.length} total entries from ${recipes.length} recipes`;
+  
   renderRecipeList();
   renderTable();
-  document.getElementById('search').addEventListener('input', e=>{ searchTerm=e.target.value; renderTable(); });
-  document.getElementById('showAmounts').addEventListener('change', e=>{ show.amounts=e.target.checked; renderTable(); });
-  document.getElementById('showPrep').addEventListener('change', e=>{ show.prep=e.target.checked; renderTable(); });
-  document.getElementById('showNotes').addEventListener('change', e=>{ show.notes=e.target.checked; renderTable(); });
-  document.getElementById('exportCSV').addEventListener('click', ()=>{ download('kyphi_aligned.csv', JSON.stringify(rows, null, 2)); });
-  document.getElementById('exportJSON').addEventListener('click', ()=>{ download('kyphi_long.json', JSON.stringify(rows, null, 2)); });
+  
+  // Event listeners
+  document.getElementById('search').addEventListener('input', e=>{ 
+    searchTerm=e.target.value; 
+    renderTable(); 
+  });
+  
+  document.getElementById('showAmounts').addEventListener('change', e=>{ 
+    show.amounts=e.target.checked; 
+    renderTable(); 
+  });
+  
+  document.getElementById('showPrep').addEventListener('change', e=>{ 
+    show.prep=e.target.checked; 
+    renderTable(); 
+  });
+  
+  document.getElementById('showNotes').addEventListener('change', e=>{ 
+    show.notes=e.target.checked; 
+    renderTable(); 
+  });
+  
+  // Fixed CSV export - now actually generates CSV!
+  document.getElementById('exportCSV').addEventListener('click', ()=>{
+    if (rows.length === 0) {
+      showMessage('No data to export', 'warning');
+      return;
+    }
+    
+    const headers = ['recipe', 'ingredient', 'amount', 'preparation', 'notes'];
+    const csvRows = [headers.join(',')];
+    
+    rows.forEach(row => {
+      const values = headers.map(header => {
+        const value = row[header] || '';
+        // Escape quotes and wrap in quotes if contains comma, quote, or newline
+        return /[,"\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+      });
+      csvRows.push(values.join(','));
+    });
+    
+    download('kyphi_aligned.csv', csvRows.join('\n'));
+    showMessage(`Exported ${rows.length} rows to CSV`, 'success');
+  });
+  
+  document.getElementById('exportJSON').addEventListener('click', ()=>{ 
+    if (rows.length === 0) {
+      showMessage('No data to export', 'warning');
+      return;
+    }
+    download('kyphi_long.json', JSON.stringify(rows, null, 2)); 
+    showMessage(`Exported ${rows.length} rows to JSON`, 'success');
+  });
 });
 </script>
 </body>
