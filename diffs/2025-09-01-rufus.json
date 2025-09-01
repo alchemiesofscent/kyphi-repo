@@ -1,0 +1,12 @@
+{
+  "recipes":[{"slug_hint":"kyphi-rufus","label":"Kyphi (Rufus/Damocrates)","aliases":["κύφειον Δαμοκράτους"]}],
+  "ingredients":[
+    {"slug_hint":"white-raisins","label":"λευκὴ σταφίς","aliases":["white raisins"]},
+    {"slug_hint":"myrrh","label":"σμύρνα","aliases":["myrrh"]}
+  ],
+  "entries":[
+    {"recipe_slug":"kyphi-rufus","ingredient_slug":"white-raisins","amount_raw":"—","preparation":"","notes":"Rufus 14.117"},
+    {"recipe_slug":"kyphi-rufus","ingredient_slug":"myrrh","amount_raw":"—","preparation":"","notes":""}
+  ],
+  "provenance":{"source":"Rufus apud Damocrates 14.117","submitted_by":"@sc","date":"2025-09-01"}
+}
