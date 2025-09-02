@@ -85,7 +85,7 @@
 
 <script>
 const DATA_URL = 'kyphi_long.json';
-const EQUIVALENCES_URL = '../data/equivalences.json';
+const EQUIVALENCES_URL = 'equivalences.json';  // Same directory as the web app
 const SAMPLE_DATA = [
   {"recipe":"Philae","ingredient":"gnn","amount":null,"preparation":null,"notes":"unidentified"},
   {"recipe":"Dioscorides","ingredient":"σμύρνης","amount":"δραχμὰς 12","preparation":null,"notes":"myrrh"}
@@ -96,12 +96,16 @@ let equivalenceGroups = {}; // Loaded from file
 async function loadEquivalences() {
   try {
     const r = await fetch(EQUIVALENCES_URL);
-    if (!r.ok) return {};
+    if (!r.ok) {
+      console.info('Equivalences file not found - smart alignment disabled');
+      return {};
+    }
     const data = await r.json();
     const groups = {};
     data.equivalence_groups.forEach(group => {
       groups[group.canonical_name] = group.ingredients;
     });
+    console.log(`Loaded ${Object.keys(groups).length} equivalence groups`);
     return groups;
   } catch (error) {
     console.warn('Could not load equivalences:', error.message);
@@ -391,7 +395,9 @@ addEventListener('DOMContentLoaded', async ()=>{
   document.getElementById('smartAlignment').addEventListener('change', e=>{
     smartAlignment = e.target.checked;
     renderTable();
-    if (smartAlignment) {
+    if (smartAlignment && Object.keys(equivalenceGroups).length === 0) {
+      showMessage('No equivalences loaded - add equivalences.json for smart alignment', 'warning');
+    } else if (smartAlignment) {
       showMessage('Smart alignment activated - showing best-guess equivalences', 'info');
     }
   });
