@@ -33,6 +33,10 @@
   .message.success { background: #e8f5e8; border-left: 4px solid #51cf66; }
   .message.warning { background: #fff3cd; border-left: 4px solid #ffc107; }
   .message.error { background: #f8d7da; border-left: 4px solid #dc3545; }
+  
+  .alignment-mode { background: #e8f4fd; border: 1px solid #1976d2; border-radius: .4rem; padding: .5rem; margin: .5rem 0; }
+  .best-guess { background: #fff3e0; border-left: 3px solid #ff9800; }
+  .linked-ingredient { font-style: italic; opacity: 0.8; }
 </style>
 </head>
 <body>
@@ -55,13 +59,23 @@
   <div class="block">
     <label>
       Search ingredients / notes
-      <input id="search" type="search" placeholder="e.g., σμύρνης, Sw.t nmtj, juniper, honey…">
+      <input id="search" type="search" placeholder="e.g., σμύρνης, ḫrj, juniper, honey…">
     </label>
     <label><input type="checkbox" id="showAmounts" checked> Show amounts</label>
     <label><input type="checkbox" id="showPrep" checked> Show preparation</label>
     <label><input type="checkbox" id="showNotes" checked> Show notes</label>
+    
+    <div class="alignment-mode">
+      <label><input type="checkbox" id="smartAlignment"> Smart Alignment Mode</label>
+      <div class="muted small">Groups likely equivalent ingredients (myrrh, juniper, etc.) across languages</div>
+    </div>
+    
     <div class="muted small">Data: <span id="dataStatus" class="badge">loading…</span></div>
   </div>
+</div>
+
+<div id="alignmentWarning" class="message warning" style="display: none;">
+  Smart Alignment active: Ingredients are grouped by best-guess equivalences. This view is speculative.
 </div>
 
 <table id="grid" aria-label="Aligned ingredients table">
@@ -71,10 +85,29 @@
 
 <script>
 const DATA_URL = 'kyphi_long.json';
+const EQUIVALENCES_URL = '../data/equivalences.json';
 const SAMPLE_DATA = [
   {"recipe":"Philae","ingredient":"gnn","amount":null,"preparation":null,"notes":"unidentified"},
   {"recipe":"Dioscorides","ingredient":"σμύρνης","amount":"δραχμὰς 12","preparation":null,"notes":"myrrh"}
 ];
+
+let equivalenceGroups = {}; // Loaded from file
+
+async function loadEquivalences() {
+  try {
+    const r = await fetch(EQUIVALENCES_URL);
+    if (!r.ok) return {};
+    const data = await r.json();
+    const groups = {};
+    data.equivalence_groups.forEach(group => {
+      groups[group.canonical_name] = group.ingredients;
+    });
+    return groups;
+  } catch (error) {
+    console.warn('Could not load equivalences:', error.message);
+    return {};
+  }
+}
 
 const nfkc = s => s && s.normalize ? s.normalize('NFKC') : s;
 function unique(arr){ return Array.from(new Set(arr)); }
@@ -106,7 +139,59 @@ function showMessage(msg, type = 'info') {
   setTimeout(() => div.remove(), 3000);
 }
 
-let rows=[], recipes=[], selected=new Set(), show={amounts:true, prep:true, notes:true}, searchTerm='', filteredCount = 0;
+function findEquivalenceGroup(ingredient) {
+  const normalized = nfkc(ingredient).toLowerCase();
+  for (const [groupName, variants] of Object.entries(equivalenceGroups)) {
+    for (const variant of variants) {
+      if (nfkc(variant).toLowerCase() === normalized || 
+          normalized.includes(nfkc(variant).toLowerCase()) ||
+          nfkc(variant).toLowerCase().includes(normalized)) {
+        return groupName;
+      }
+    }
+  }
+  return null;
+}
+
+function getAlignedIngredients(ingredients, smartAlignment) {
+  if (!smartAlignment) {
+    return ingredients.map(ing => ({original: ing, aligned: ing, group: null}));
+  }
+  
+  const grouped = {};
+  const ungrouped = [];
+  
+  ingredients.forEach(ing => {
+    const group = findEquivalenceGroup(ing);
+    if (group) {
+      if (!grouped[group]) grouped[group] = [];
+      grouped[group].push(ing);
+    } else {
+      ungrouped.push(ing);
+    }
+  });
+  
+  const result = [];
+  
+  // Add grouped ingredients
+  Object.entries(grouped).forEach(([groupName, ings]) => {
+    result.push({
+      original: ings,
+      aligned: groupName,
+      group: groupName,
+      variants: ings
+    });
+  });
+  
+  // Add ungrouped ingredients
+  ungrouped.forEach(ing => {
+    result.push({original: ing, aligned: ing, group: null});
+  });
+  
+  return result.sort((a, b) => a.aligned.localeCompare(b.aligned));
+}
+
+let rows=[], recipes=[], selected=new Set(), show={amounts:true, prep:true, notes:true}, searchTerm='', filteredCount = 0, smartAlignment = false;
 
 async function loadJSON(url){
   updateStatus('Loading...', false);
@@ -147,7 +232,11 @@ function renderTable(){
   const thead=document.getElementById('thead');
   const tbody=document.getElementById('tbody');
   const active=recipes.filter(r=>selected.has(r));
-  const ingredients=unique(rows.map(r=>r.ingredient)).sort((a,b)=>a.localeCompare(b));
+  const rawIngredients=unique(rows.map(r=>r.ingredient)).sort((a,b)=>a.localeCompare(b));
+  
+  // Show/hide alignment warning
+  const warning = document.getElementById('alignmentWarning');
+  warning.style.display = smartAlignment ? 'block' : 'none';
   
   if (active.length === 0) {
     thead.innerHTML = '<tr><th>Ingredient</th><th class="muted">No recipes selected</th></tr>';
@@ -156,29 +245,54 @@ function renderTable(){
     return;
   }
   
-  thead.innerHTML=`<tr><th>Ingredient</th>${active.map(r=>`<th>${r}</th>`).join('')}</tr>`;
+  // Get aligned ingredients
+  const alignedIngredients = getAlignedIngredients(rawIngredients, smartAlignment);
+  
+  thead.innerHTML=`<tr><th>Ingredient${smartAlignment ? ' (Aligned)' : ''}</th>${active.map(r=>`<th>${r}</th>`).join('')}</tr>`;
   tbody.innerHTML='';
   const q=nfkc(searchTerm||'').toLowerCase();
   filteredCount = 0;
   
-  ingredients.forEach(ing=>{
+  alignedIngredients.forEach(alignedIng => {
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><div class="wrap">${ing}</div></td>`;
-    active.forEach(rec=>{
-      const matches=rows.filter(r=>r.ingredient===ing && r.recipe===rec);
-      if(!matches.length){ tr.innerHTML+=`<td>—</td>`; return; }
-      const cell=matches.map(m=>{
-        const bits=[`<strong>${m.ingredient}</strong>`];
-        if(show.amounts && m.amount) bits.push(`<span class="pill">${m.amount}</span>`);
-        if(show.prep && m.preparation) bits.push(`<span class="pill">${m.preparation}</span>`);
-        if(show.notes && m.notes) bits.push(`<span class="note">${m.notes}</span>`);
+    
+    // Build ingredient cell
+    let ingredientDisplay = '';
+    if (alignedIng.group) {
+      // Show grouped ingredient
+      ingredientDisplay = `<div class="wrap best-guess">
+        <strong>${alignedIng.aligned}</strong><br>
+        <small class="linked-ingredient">${alignedIng.variants.join(', ')}</small>
+      </div>`;
+    } else {
+      ingredientDisplay = `<div class="wrap">${alignedIng.aligned}</div>`;
+    }
+    
+    tr.innerHTML = `<td>${ingredientDisplay}</td>`;
+    
+    // Build recipe columns
+    active.forEach(rec => {
+      const relevantIngredients = alignedIng.group ? alignedIng.variants : [alignedIng.original];
+      const matches = rows.filter(r => relevantIngredients.includes(r.ingredient) && r.recipe === rec);
+      
+      if (!matches.length) { 
+        tr.innerHTML += `<td>—</td>`; 
+        return; 
+      }
+      
+      const cell = matches.map(m => {
+        const bits = [`<strong>${m.ingredient}</strong>`];
+        if (show.amounts && m.amount) bits.push(`<span class="pill">${m.amount}</span>`);
+        if (show.prep && m.preparation) bits.push(`<span class="pill">${m.preparation}</span>`);
+        if (show.notes && m.notes) bits.push(`<span class="note">${m.notes}</span>`);
         return bits.join(' ');
       }).join('<br>');
-      tr.innerHTML+=`<td>${cell}</td>`;
+      tr.innerHTML += `<td>${cell}</td>`;
     });
-    // search filter
-    const textBlob=(ing+' '+tr.textContent).toLowerCase();
-    if(q && !textBlob.includes(q)) return;
+    
+    // Search filter
+    const textBlob = (alignedIng.aligned + ' ' + tr.textContent).toLowerCase();
+    if (q && !textBlob.includes(q)) return;
     tbody.appendChild(tr);
     filteredCount++;
   });
@@ -186,7 +300,7 @@ function renderTable(){
   // Show search results feedback
   const searchInput = document.getElementById('search');
   if (q) {
-    const totalIngredients = ingredients.length;
+    const totalIngredients = alignedIngredients.length;
     if (filteredCount === 0) {
       searchInput.style.borderColor = '#ff6b6b';
       showMessage(`No ingredients found matching "${searchTerm}"`, 'warning');
@@ -202,6 +316,10 @@ function renderTable(){
 }
 
 addEventListener('DOMContentLoaded', async ()=>{
+  // Load equivalences first
+  equivalenceGroups = await loadEquivalences();
+  console.log(`Loaded ${Object.keys(equivalenceGroups).length} equivalence groups`);
+  
   let data = await loadJSON(DATA_URL);
   let statusMsg = '';
   
@@ -270,7 +388,15 @@ addEventListener('DOMContentLoaded', async ()=>{
     renderTable(); 
   });
   
-  // Fixed CSV export - now actually generates CSV!
+  document.getElementById('smartAlignment').addEventListener('change', e=>{
+    smartAlignment = e.target.checked;
+    renderTable();
+    if (smartAlignment) {
+      showMessage('Smart alignment activated - showing best-guess equivalences', 'info');
+    }
+  });
+  
+  // Fixed CSV export
   document.getElementById('exportCSV').addEventListener('click', ()=>{
     if (rows.length === 0) {
       showMessage('No data to export', 'warning');
@@ -283,7 +409,6 @@ addEventListener('DOMContentLoaded', async ()=>{
     rows.forEach(row => {
       const values = headers.map(header => {
         const value = row[header] || '';
-        // Escape quotes and wrap in quotes if contains comma, quote, or newline
         return /[,"\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
       });
       csvRows.push(values.join(','));
