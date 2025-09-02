@@ -1,0 +1,18 @@
+{
+  "recipes": [{
+    "slug": "test-recipe",
+    "label": "Test Recipe",
+    "language": "en"
+  }],
+  "ingredients": [{
+    "slug": "test-ingredient", 
+    "label": "Test Ingredient",
+    "language": "en"
+  }],
+  "aliases": [],
+  "entries": [{
+    "recipe_slug": "test-recipe",
+    "ingredient_slug": "test-ingredient",
+    "amount_raw": "1 unit"
+  }]
+}
