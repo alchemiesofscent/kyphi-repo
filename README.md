@@ -111,7 +111,6 @@ Create `diffs/2025-09-02-my-source.json`:
     "amount_unit": "drachm",
     "preparation": "powdered",
     "notes": "best quality"
->>>>>>> seed/rufus
   }]
 }
 ```
@@ -283,5 +282,4 @@ The system transforms human-friendly slug-based diffs into a normalized database
 
 **Built with ❤️ for digital humanities research**
 
-For support, open an issue or check the [GitHub Discussions](https://github.com/[username]/[repo-name]/discussions) tab.
->>>>>>> seed/rufus
+For support, open an issue or check the [GitHub Discussions](https://github.com/alchemiesofscent/kyphi-repo/discussions) tab.
