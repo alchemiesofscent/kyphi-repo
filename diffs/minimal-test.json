@@ -1,0 +1,22 @@
+{
+  "recipes": [
+    {
+      "slug": "test",
+      "label": "Test Recipe"
+    }
+  ],
+  "ingredients": [
+    {
+      "slug": "salt",
+      "label": "Salt"
+    }
+  ],
+  "aliases": [],
+  "entries": [
+    {
+      "recipe_slug": "test",
+      "ingredient_slug": "salt",
+      "amount_raw": "1 tsp"
+    }
+  ]
+}
