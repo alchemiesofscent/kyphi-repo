@@ -164,7 +164,9 @@ jobs:
           INGREDIENT_COUNT=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['ingredients']))")
           if [ "$INGREDIENT_COUNT" -gt 10 ]; then
             echo "Rebuilding equivalences for $INGREDIENT_COUNT ingredients"
-            python scripts/build_equivalences.py --auto-approve-high-confidence
+            # Create basic equivalences file for now (skip interactive matching)
+            echo '{"equivalence_groups": []}' > docs/equivalences.json
+            echo "Created basic equivalences file - run build_equivalences.py locally for full matching"
           else
             echo "Only $INGREDIENT_COUNT ingredients - skipping equivalence rebuild"
           fi
