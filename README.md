@@ -111,7 +111,6 @@ Create `diffs/2025-09-02-my-source.json`:
     "amount_unit": "drachm",
     "preparation": "powdered",
     "notes": "best quality"
->>>>>>> seed/rufus
   }]
 }
 ```
