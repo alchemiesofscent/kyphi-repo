@@ -176,7 +176,7 @@ jobs:
           fi
           
       - name: Commit and push changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.find_diffs.outputs.diff_files != ''
+        if: false  # TEMPORARILY DISABLED FOR TESTING
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "CI: merge diffs and rebuild kyphi_long.json"
