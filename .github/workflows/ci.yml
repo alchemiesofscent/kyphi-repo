@@ -1,51 +1,39 @@
-name: CI
+name: Validate & Build
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
     paths:
-      - 'diffs/**.json'
+      - 'diffs/**/*.json'
+      - 'data/schema_diff.json'
       - 'scripts/**'
-      - 'data/**'
+      - 'data/MASTER.json'  # Trigger on master changes
   push:
-    branches: [main]
+    branches: [ main ]
     paths:
-      - 'data/**'
-      - '.github/workflows/ci.yml'
-
-permissions:
-  contents: write
-  pull-requests: write
+      - 'diffs/**/*.json'
+      - 'data/schema_diff.json' 
+      - 'scripts/**'
+      - 'data/MASTER.json'  # Trigger on master changes
 
 jobs:
-  pr-merge-export:
-    if: github.event_name == 'pull_request'
+  validate-merge-build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-<<<<<<< HEAD
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install jsonschema
-      - name: Validate diffs
-=======
           python-version: '3.x'
-
+          
       - name: Install validator deps
         run: |
           python -m pip install --upgrade pip
           pip install jsonschema
-
+          
       - name: Find diff files
         id: find_diffs
->>>>>>> seed/rufus
         run: |
           echo "🔍 Looking for diff files..."
           DIFF_FILES=$(find diffs -name "*.json" -not -path "diffs/processed/*" | sort)
@@ -61,31 +49,12 @@ jobs:
             DIFF_FILES_SPACE=$(echo "$DIFF_FILES" | tr '\n' ' ')
             echo "diff_files=$DIFF_FILES_SPACE" >> $GITHUB_OUTPUT
           fi
-
+          
       - name: Validate diffs against schema
         if: steps.find_diffs.outputs.diff_files != ''
         run: |
           echo "🔄 Validating diff files against schema..."
           python - <<'PY'
-<<<<<<< HEAD
-          import json, glob, jsonschema
-          schema = json.load(open('data/schema_diff.json', encoding='utf-8'))
-          for p in glob.glob('diffs/*.json'):
-              jsonschema.validate(json.load(open(p, encoding='utf-8')), schema)
-          print("OK")
-          PY
-      - name: Compute changed diffs vs base
-        id: changed
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          FILES="$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^diffs/.*\.json$' || true)"
-          echo "files=$FILES" >> "$GITHUB_OUTPUT"
-      - name: Merge diffs into MASTER.json
-        run: |
-          set -e
-          for f in ${{ steps.changed.outputs.files }}; do
-            python scripts/merge_diff.py "$f" data/MASTER.json
-=======
           import json, glob, sys
           from jsonschema import validate, ValidationError
 
@@ -125,7 +94,7 @@ jobs:
           print(f'\n📋 Validation Summary: {validated} files validated')
           sys.exit(0 if ok else 1)
           PY
-
+          
       - name: Dry-run merge preview
         if: steps.find_diffs.outputs.diff_files != ''
         run: |
@@ -160,7 +129,7 @@ jobs:
           
           # Restore backup (this was just a preview)
           mv data/MASTER.json.backup data/MASTER.json
-
+          
       # Only do actual merge and build on main branch
       - name: Merge diffs into MASTER.json
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.find_diffs.outputs.diff_files != ''
@@ -180,48 +149,33 @@ jobs:
               echo "📁 Archived to diffs/processed/${BASENAME}_${TIMESTAMP}.json"
               echo "::endgroup::"
             fi
->>>>>>> seed/rufus
           done
-      - name: Export kyphi_long.json
-        run: python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
-      - name: Commit results back to PR branch
+          
+      - name: Export docs/kyphi_long.json
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-<<<<<<< HEAD
-          git config user.email "actions@github.com"
-          git config user.name  "github-actions[bot]"
-          git add data/MASTER.json docs/kyphi_long.json
-          git commit -m "CI: merge & export for PR" || echo "No changes to commit"
-          git push
-
-  main-validate:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install jsonschema
-      - name: Validate MASTER.json against schema_master.json
-        run: |
-          python - <<'PY'
-          import json, jsonschema
-          schema=json.load(open('data/schema_master.json',encoding='utf-8'))
-          with open('data/MASTER.json',encoding='utf-8') as f:
-              jsonschema.validate(json.load(f), schema)
-          print("OK")
-          PY
-=======
           echo "🏗️  Rebuilding web app data..."
           python scripts/export_long.py data/MASTER.json docs/kyphi_long.json
-
+          
+      - name: Update equivalences
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Only rebuild equivalences if multiple new ingredients were added
+          INGREDIENT_COUNT=$(python -c "import json; print(len(json.load(open('data/MASTER.json'))['ingredients']))")
+          if [ "$INGREDIENT_COUNT" -gt 10 ]; then
+            echo "🔗 Rebuilding equivalences for $INGREDIENT_COUNT ingredients"
+            python scripts/build_equivalences.py --auto-approve-high-confidence
+          else
+            echo "ℹ️  Only $INGREDIENT_COUNT ingredients - skipping equivalence rebuild"
+          fi
+          
       - name: Commit and push changes
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.find_diffs.outputs.diff_files != ''
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "🤖 CI: merge diffs and rebuild kyphi_long.json"
           branch: main
-
+          
       - name: Success summary
         if: success()
         run: |
@@ -234,4 +188,3 @@ jobs:
             echo "🚀 Changes have been merged and deployed"
             echo "🌐 Web app will update at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
           fi
->>>>>>> seed/rufus
